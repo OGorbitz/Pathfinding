@@ -2,7 +2,7 @@
 #include "pathfind.h"
 
 
-int grid[][];		//DO NOT DIRECTLY ACCESS THIS ARRAY! USE THE FUNCTIONS BELOW!
+int grid[1];		//DO NOT DIRECTLY ACCESS THIS ARRAY! USE THE FUNCTIONS BELOW!
 int width, height;	//DO NOT DIRECTLY ACCESS THIS ARRAY! USE THE FUNCTIONS BELOW!
 
 void newGrid(int w, int h);			//Used to clear the grid and setup a new one
