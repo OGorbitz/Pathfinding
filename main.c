@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "gtk+/gtk.h"
+#include "main.h"
 
 static void activate (GtkApplication* app, gpointer user_data)
 {
@@ -7,7 +6,7 @@ static void activate (GtkApplication* app, gpointer user_data)
 
 	window = gtk_application_window_new(app);
 	gtk_window_set_title(GTK_WINDOW(window), "A* Pathfinding Demo");
-	gtk_window_set_default_size(GTK_WINDOW(window), 200, 200)
+	gtk_window_set_default_size(GTK_WINDOW(window), 200, 200);
 	gtk_widget_show_all(window);
 }
 
