@@ -1,5 +1,5 @@
 #include "main.h"
-#include "draw.h"
+
 
 static void speed_changed(GtkWidget *widget, gpointer *data)
 {
@@ -14,6 +14,15 @@ static void start_pathfinding(GtkWidget *widget, gpointer data)
 	g_print("Pathfinding started at %ld aps\n", aps);
 	gtk_widget_set_sensitive(widget, FALSE);
 	gtk_widget_set_sensitive(stop_button, TRUE);
+	gtk_widget_set_sensitive(reset_button, TRUE);
+
+	if (loopthread)
+	{
+		pthread_create(&loopthread, NULL, pf_loop, NULL);
+	} else {
+		pthread_cancel(loopthread);
+		pthread_create(&loopthread, NULL, pf_loop, NULL);
+	}
 }
 
 static void stop_pathfinding(GtkWidget *widget, gpointer data)
@@ -22,19 +31,30 @@ static void stop_pathfinding(GtkWidget *widget, gpointer data)
 	g_print("Pathfinding halted\n");
 	gtk_widget_set_sensitive(widget, FALSE);
 	gtk_widget_set_sensitive(start_button, TRUE);
+
+	pthread_cancel(loopthread);
+}
+
+static void reset_pathfinding(GtkWidget *widget, gpointer data)
+{
+	if(pathfinding == TRUE)
+		stop_pathfinding(stop_button, NULL);
+	gtk_widget_set_sensitive(widget, FALSE);
+	pathfinding_reset();
 }
 
 static void generate_maze(GtkWidget *widget, gpointer data)
 {
 	if (pathfinding == TRUE)
 		stop_pathfinding(stop_button, NULL);
-	g_print("Generating New Maze\n");
+	gtk_widget_set_sensitive(reset_button, FALSE);
+	maze_generate(1);
 }
 
 static void activate (GtkApplication* app, gpointer user_data)
 {
 	GtkWidget *window;
-	GtkWidget *b_start, *b_stop, *b_genmaze;
+	GtkWidget *b_start, *b_stop, *b_reset, *b_genmaze;
 	GtkWidget *button_box;
 	GtkWidget *displayarea;
 	GtkWidget *grid;
@@ -79,12 +99,18 @@ static void activate (GtkApplication* app, gpointer user_data)
 	gtk_widget_set_sensitive(b_stop, FALSE);
 	gtk_container_add(GTK_CONTAINER(bb_pf), b_stop);
 
-	scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 1000, 50);
+	scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 100, 20);
 	g_signal_connect(G_OBJECT(scale_speed), "value_changed", G_CALLBACK(speed_changed), NULL);
 	gtk_container_add(GTK_CONTAINER(bb_pf), scale_speed);
 
 	label_speed = gtk_label_new("Cycles per second");
 	gtk_container_add(GTK_CONTAINER(bb_pf), label_speed);
+
+	b_reset = gtk_button_new_with_label("Reset Pathfinding");
+	reset_button = b_reset;
+	g_signal_connect(b_reset, "clicked", G_CALLBACK(reset_pathfinding), NULL);
+	gtk_widget_set_sensitive(b_reset, FALSE);
+	gtk_container_add(GTK_CONTAINER(bb_pf), b_reset);
 
 	frame_mg = gtk_frame_new("Maze Generation");
 	gtk_grid_attach(GTK_GRID(grid), frame_mg, 1, 1, 1, 1);
@@ -105,21 +131,26 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	guint width, height;
 	GdkRGBA color;
-	GtkStyleContext *context;
-
-	color.red = .5;
-	color.green = 0;
-	color.blue = 0;
+	color.red = 1;
+	color.green = .5;
+	color.blue = .5;
 	color.alpha = 1;
 
-	context = gtk_widget_get_style_context(widget);
+	GtkStyleContext *context;
 
+	context = gtk_widget_get_style_context(widget);
 	width = gtk_widget_get_allocated_width(widget);
 	height = gtk_widget_get_allocated_height(widget);
 
-	gtk_render_background(context, cr, 0, 0, width, height);
+	draw_update(width, height, context, 20);
 
-	draw_lines(10, width, height, cr);
+	clear_canvas(.5, 0, 0, 1, cr);
+	for (int i = 10; i < 20; i++)
+	{
+		draw_cell(i, 10, color, cr);
+	}
+
+	draw_lines(cr);
 
 	return (FALSE);
 }
@@ -135,4 +166,14 @@ int main(int argc, char **argv)
 	g_object_unref(app);
 
 	return(status);
+}
+
+void * pf_loop(void *param)
+{
+	while (pathfinding == TRUE)
+	{
+		//Run pathfinding cycle
+		pathfinding_cycle();
+		sleep(1 / aps);
+	}
 }

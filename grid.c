@@ -1,39 +1,38 @@
 #include "grid.h"
 
-void newgrid(int w, int h)
+void new_grid(void)
 {
-	grid = int[w][h];
-	for(int i = 0; i < w; i++)
+	for(int i = 0; i < 25; i++)
 	{
-		for(int j = 0; j < h; j++)
+		for(int j = 0; j < 20; j++)
 		{
-			grid[i][j] = 0;
+			//grid[i][j] = 0;
 		}
 	}
 }
 
-int getBox(int x, int y)
+int get_box(int x, int y)
 {
 	if ((x >= width) && (y >= height))
 	{
-		return(grid[x][y]);
+		return 1;//return(grid[x][y]);
 	}
 }
 
-void setBox(int x, int y, int val)
+void set_box(int x, int y, int val)
 {
 	if ((x >= width) && (y >= height))
 	{
-		grid[x][y] = val;
+		//grid[x][y] = val;
 	}
 }
 
-void getWidth()
+int get_width()
 {
 	return(height);
 }
 
-void getHeight()
+int get_height()
 {
 	return(height);
 }
