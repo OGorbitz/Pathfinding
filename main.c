@@ -47,14 +47,18 @@ static void reset_pathfinding(GtkWidget *widget, gpointer data)
 	if(pathfinding == TRUE)
 		stop_pathfinding(stop_button, NULL);
 	gtk_widget_set_sensitive(widget, FALSE);
-	pathfinding_reset();
+	pathfinding_init();
+	gtk_widget_queue_draw(displayarea);
+	gtk_widget_set_sensitive(start_button, TRUE);
 }
 
 static void generate_maze(GtkWidget *widget, gpointer data)
 {
 	if (pathfinding == TRUE)
 		stop_pathfinding(stop_button, NULL);
+	gtk_widget_set_sensitive(start_button, FALSE);
 	gtk_widget_set_sensitive(reset_button, FALSE);
+	gtk_widget_set_sensitive(b_genmaze, FALSE);
 
 
 	if(!genthread)
@@ -69,7 +73,6 @@ static void generate_maze(GtkWidget *widget, gpointer data)
 static void activate (GtkApplication* app, gpointer user_data)
 {
 	GtkWidget *window;
-	GtkWidget *b_genmaze;
 	GtkWidget *button_box;
 	GtkWidget *display_area;
 	GtkWidget *grid;
@@ -113,7 +116,7 @@ static void activate (GtkApplication* app, gpointer user_data)
 	gtk_widget_set_sensitive(stop_button, FALSE);
 	gtk_container_add(GTK_CONTAINER(bb_pf), stop_button);
 
-	scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 1000, 20);
+	scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 100, 20);
 	g_signal_connect(G_OBJECT(scale_speed), "value_changed", G_CALLBACK(speed_changed), NULL);
 	gtk_container_add(GTK_CONTAINER(bb_pf), scale_speed);
 
@@ -136,7 +139,7 @@ static void activate (GtkApplication* app, gpointer user_data)
 	g_signal_connect(b_genmaze, "clicked", G_CALLBACK(generate_maze), NULL);
 	gtk_container_add(GTK_CONTAINER(bb_mg), b_genmaze);
 
-	m_scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 1000, 20);
+	m_scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 100, 20);
 	g_signal_connect(G_OBJECT(m_scale_speed), "value_changed", G_CALLBACK(m_speed_changed), NULL);
 	gtk_container_add(GTK_CONTAINER(bb_mg), m_scale_speed);
 
@@ -145,6 +148,7 @@ static void activate (GtkApplication* app, gpointer user_data)
 
 	gtk_widget_show_all(window);
 
+	generate_maze(b_genmaze, NULL);
 }
 
 gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
@@ -167,6 +171,9 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	clear_canvas(.5, 0, 0, 1, cr);
 
+
+	set_box(1, 1, 3);
+	set_box(23, 19, 4);
 	for (int i = 0; i < get_width(); i++)
 	{
 		for(int j = 0; j < get_width(); j++)
@@ -181,6 +188,38 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 			}
 			if(get_box(i, j) == 1)
 			{
+				if(get_status(i, j) == 1) {
+					GdkRGBA cl;
+					cl.red = 0.4;
+					cl.green = 0.7;
+					cl.blue = 0.7;
+					cl.alpha = 1;
+					draw_cell(i, j, cl, cr);
+				} else if(get_status(i, j) == 2) {
+					GdkRGBA cl;
+					cl.red = 1;
+					cl.green = 0.7;
+					cl.blue = 0.7;
+					cl.alpha = 1;
+					draw_cell(i, j, cl, cr);
+				} else if(get_status(i, j) == 5) {
+					GdkRGBA cl;
+					cl.red = 6;
+					cl.green = .2;
+					cl.blue = .2;
+					cl.alpha = 1;
+					draw_cell(i, j, cl, cr);
+				} else {
+					GdkRGBA cl;
+					cl.red = 0.6;
+					cl.green = 0.6;
+					cl.blue = 0.8;
+					cl.alpha = 1;
+					draw_cell(i, j, cl, cr);
+				}
+			}
+			if(get_box(i, j) == 2)
+			{
 				GdkRGBA cl;
 				cl.red = 0.8;
 				cl.green = 0.4;
@@ -188,10 +227,19 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 				cl.alpha = 1;
 				draw_cell(i, j, cl, cr);
 			}
-			if(get_box(i, j) == 2)
+			if(get_box(i, j) == 3)
 			{
 				GdkRGBA cl;
 				cl.red = 0.4;
+				cl.green = 1;
+				cl.blue = 0.4;
+				cl.alpha = 1;
+				draw_cell(i, j, cl, cr);
+			}
+			if(get_box(i, j) == 4)
+			{
+				GdkRGBA cl;
+				cl.red = 0.8;
 				cl.green = 0.8;
 				cl.blue = 0.4;
 				cl.alpha = 1;
@@ -200,12 +248,9 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 		}
 	}
 
-	color.red = 1;
-	color.blue = .2;
-	color.green = .2;
-	draw_cell(0, 0, color, cr);
+	draw_numbers(cr);
 	draw_lines(cr);
-	//DEBUG: g_print("Updated drawarea\n");
+	//g_print("Updated drawarea\n");
 	return (FALSE);
 }
 
@@ -214,7 +259,9 @@ int main(int argc, char **argv)
 	GtkApplication *app;
 	int status;
 
+	pathfinding_init();
 	new_grid();
+
 
 	app = gtk_application_new("org.gtk.astar", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
@@ -234,7 +281,13 @@ void * pf_loop(void *param)
 	while (pathfinding == TRUE)
 	{
 		//Run pathfinding cycle
-		pathfinding_cycle();
+		if(pathfinding_cycle() == 0)
+		{
+			gtk_widget_queue_draw(displayarea);
+			g_print("Finished\n");
+			break;
+		}
+		gtk_widget_queue_draw(displayarea);
 		usleep(1000000 / aps);
 	}
 }
@@ -243,14 +296,17 @@ void * mg_loop(void *param)
 {
 	maze_generate_init();
 
+	reset_pathfinding(reset_button, NULL);
+
 	while (1 == 1)
 	{
-		usleep(1000000 / cps);
 		if (maze_generate_tick())
 		{
 			g_print("New Maze Generated\n");
 			break;
 		}
 		gtk_widget_queue_draw(displayarea);
+		usleep(1000000 / cps);
 	}
+	gtk_widget_set_sensitive(b_genmaze, TRUE);
 }

@@ -31,6 +31,35 @@ void draw_rectangle(GdkRGBA color, int x1, int y1, int x2, int y2, cairo_t *cr)
 	cairo_fill(cr);
 }
 
+void draw_numbers(cairo_t *cr)
+{
+	GdkRGBA color;
+	color.red = 0;
+	color.green = 0;
+	color.blue = 0;
+	color.alpha = 1;
+
+	cairo_set_source_rgba(cr, color.red, color.green, color.blue, color.alpha);
+	cairo_set_font_size(cr, 10);
+
+	for (int i = 0; i < 25; i++)
+	{
+		for(int j = 0; j < 25; j++)
+		{
+			if ( (get_status(i, j) == 1) || (get_status(i, j) == 2) )
+			{
+				char buff[3];
+				sprintf(buff, "%d", get_startdist(i, j));
+				cairo_move_to(cr, i * d_cellsize, ((j + 1) * d_cellsize) - 1);
+				cairo_show_text(cr, buff);
+				sprintf(buff, "%d", get_totaldist(i, j));
+				cairo_move_to(cr, i * d_cellsize, ((j + 1) * d_cellsize) - 10);
+				cairo_show_text(cr, buff);
+			}
+		}
+	}
+}
+
 void draw_lines(cairo_t *cr)
 {
 

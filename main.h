@@ -10,7 +10,7 @@
 
 long aps = 1, cps = 1;
 gboolean pathfinding = FALSE;
-GtkWidget *start_button, *stop_button, *reset_button;
+GtkWidget *start_button, *stop_button, *reset_button, *b_genmaze;
 GtkWidget *displayarea;
 pthread_t loopthread, genthread;
 cairo_t *cairo;

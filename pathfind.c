@@ -10,9 +10,25 @@ void pathfinding_init(void)
 		}
 	}
 
+	int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+	for(int n = 0; n < 4; n++)
+	{
+		int xn = 1 + dirs[n][0];
+		int yn = 1 + dirs[n][1];
+
+		if(get_box(xn, yn) == 1) {
+			if(get_status(xn, yn) == 0)
+			{
+				//ADD TO OPEN LIST AND COMPUTE SCORE
+				set_status(xn, yn, 1);
+				set_startdist(xn, yn, 1);
+				set_heuristic(xn, yn, (23 - xn) + (21 - yn));
+			}
+		}
+	}
+
+
 	set_status(1, 1, 1);
-	set_box(1, 1, 3);
-	set_box(23, 18, 4);
 }
 
 int pathfinding_cycle(void)
@@ -22,11 +38,11 @@ int pathfinding_cycle(void)
 
 	int gx = 23, gy = 18;
 
-	int min = 25 + 21;
+	int min = 100;
 	int xm, ym;
-	for(int i = 0; i < 25, i++)
+	for(int i = 0; i < 25; i++)
 	{
-		for (int j = 0; j < 21; j++)
+		for (int j = 0; j < 23; j++)
 		{
 			if (get_status(i, j) == 1)
 			{
@@ -47,9 +63,41 @@ int pathfinding_cycle(void)
 		int yn = ym + dirs[n][1];
 		if(get_box(xn, yn) == 4)
 		{
+			g_print("Finish reached\n");
 			//REACHED FINISH; BACKTRACE
+			while(1 == 1)
+			{
+				int min = 100;
+				int mxm, mym;
+				for(int m = 0; m < 4; m++)
+				{
+					int mxn = xn + dirs[m][0];
+					int myn = yn + dirs[m][1];
+
+					if(get_box(mxn, myn) == 3)
+					{
+						set_status(xn, yn, 5);
+						return(0);
+					}
+					if(get_box(mxn, myn) == 1)
+					{
+						if(get_status(mxn,myn) == 2)
+						{
+							if(get_startdist(mxn, myn) < min)
+							{
+								min = get_startdist(mxn, myn);
+								mxm = mxn;
+								mym = myn;
+							}
+						}
+					}
+				}
+				xn = mxm;
+				yn = mym;
+				set_status(xn, yn, 5);
+			}
 		} else if(get_box(xn, yn) == 1) {
-			if(get_status(xn, yn) == 1)
+			if(get_status(xn, yn) == 0)
 			{
 				//ADD TO OPEN LIST AND COMPUTE SCORE
 				set_status(xn, yn, 1);
@@ -65,6 +113,7 @@ int pathfinding_cycle(void)
 			}
 		}
 	}
+	return(1);
 }
 
 int pathfinding_reset(void)
