@@ -256,12 +256,14 @@ gboolean draw_callback(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 int main(int argc, char **argv)
 {
+	printf("Project created by:\nOzzie Gorbitz\nCesar Trevizo\nJoey Miranda\n\nUsing GTK+ Library\n");
 	GtkApplication *app;
 	int status;
 
 	pathfinding_init();
 	new_grid();
 
+	XInitThreads();
 
 	app = gtk_application_new("org.gtk.astar", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
@@ -269,11 +271,6 @@ int main(int argc, char **argv)
 	g_object_unref(app);
 
 	return(status);
-}
-
-void request_dpu()
-{
-	gtk_widget_queue_draw(displayarea);
 }
 
 void * pf_loop(void *param)
@@ -287,7 +284,9 @@ void * pf_loop(void *param)
 			g_print("Finished\n");
 			break;
 		}
+		usleep(1000);
 		gtk_widget_queue_draw(displayarea);
+
 		usleep(1000000 / aps);
 	}
 }
@@ -307,6 +306,7 @@ void * mg_loop(void *param)
 			break;
 		}
 		gtk_widget_queue_draw(displayarea);
+
 		usleep(1000000 / cps);
 	}
 	gtk_widget_set_sensitive(b_genmaze, TRUE);

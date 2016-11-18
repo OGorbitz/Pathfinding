@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <X11/Xlib.h>
 
 #include "pathfind.h"
 #include "grid.h"
