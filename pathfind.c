@@ -36,7 +36,7 @@ int pathfinding_cycle(void)
 	//g_print("One cycle\n");
 	//Do your thing joey
 
-	int gx = 23, gy = 18;
+	int gx = 23, gy = 19;
 
 	int min = 100;
 	int xm, ym;
@@ -61,6 +61,9 @@ int pathfinding_cycle(void)
 	{
 		int xn = xm + dirs[n][0];
 		int yn = ym + dirs[n][1];
+
+		//g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
+
 		if(get_box(xn, yn) == 4)
 		{
 			g_print("Finish reached\n");

@@ -297,6 +297,7 @@ void * mg_loop(void *param)
 	maze_generate_init();
 
 	reset_pathfinding(reset_button, NULL);
+	gtk_widget_set_sensitive(start_button, FALSE);
 
 	while (1 == 1)
 	{
@@ -309,4 +310,5 @@ void * mg_loop(void *param)
 		usleep(1000000 / cps);
 	}
 	gtk_widget_set_sensitive(b_genmaze, TRUE);
+	gtk_widget_set_sensitive(start_button, TRUE);
 }

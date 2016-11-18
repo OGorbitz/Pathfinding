@@ -47,35 +47,60 @@ int get_height()
 
 int get_startdist(int x, int y)
 {
-	return(grid[x][y][2]);
+	if ((x < width) && (y < height))
+	{
+		return(grid[x][y][2]);
+	}
+	return(100);
 }
 
 int get_heuristic(int x, int y)
 {
-	return(grid[x][y][3]);
+	if ((x < width) && (y < height))
+	{
+		return(grid[x][y][3]);
+	}
+	return(100);
 }
 
 int get_totaldist(int x, int y)
 {
-	return(get_heuristic(x, y) + get_startdist(x, y));
+	if ((x < width) && (y < height))
+	{
+		return(get_heuristic(x, y) + get_startdist(x, y));
+	}
+	return(100);
 }
 
 int get_status(int x, int y)
 {
-	return(grid[x][y][1]);
+	if ((x < width) && (y < height))
+	{
+		return(grid[x][y][1]);
+	}
+	return(0);
 }
 
 void set_startdist(int x, int y, int val)
 {
-	grid[x][y][2] = val;
+	if ((x < width) && (y < height))
+	{
+		grid[x][y][2] = val;
+	}
 }
 
 void set_heuristic(int x, int y, int val)
 {
-	grid[x][y][3] = val;
+	if ((x < width) && (y < height))
+	{
+		grid[x][y][3] = val;
+	}
 }
 
 void set_status(int x, int y, int val)
 {
-	grid[x][y][1] = val;
+	if ((x < width) && (y < height))
+	{
+		grid[x][y][1] = val;
+	}
 }
