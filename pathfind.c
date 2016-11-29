@@ -10,25 +10,12 @@ void pathfinding_init(void)
 		}
 	}
 
-	int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-	for(int n = 0; n < 4; n++)
-	{
-		int xn = 1 + dirs[n][0];
-		int yn = 1 + dirs[n][1];
-
-		if(get_box(xn, yn) == 1) {
-			if(get_status(xn, yn) == 0)
-			{
-				//ADD TO OPEN LIST AND COMPUTE SCORE
-				set_status(xn, yn, 1);
-				set_startdist(xn, yn, 1);
-				set_heuristic(xn, yn, (23 - xn) + (21 - yn));
-			}
-		}
-	}
 
 
 	set_status(1, 1, 1);
+	set_startdist(1, 1, 0);
+	set_heuristic(1, 1, (23 - 1) + (19 - 1));
+
 }
 
 int pathfinding_cycle(void)
@@ -38,14 +25,15 @@ int pathfinding_cycle(void)
 
 	int gx = 23, gy = 19;
 
-	int min = 100;
-	int xm, ym;
-	for(int i = 0; i < 25; i++)
+	int min = 1000;
+	int xm = 0, ym = 0;
+	for(int i = 0; i < 24; i++)
 	{
-		for (int j = 0; j < 23; j++)
+		for (int j = 0; j < 20; j++)
 		{
 			if (get_status(i, j) == 1)
 			{
+				g_print("Open box %d,%d new best\n", i, j);
 				int d = get_totaldist(i, j);
 				if (d < min)
 				{
@@ -55,6 +43,7 @@ int pathfinding_cycle(void)
 			}
 		}
 	}
+	g_print("Checking %d,%d\n", xm, ym);
 	set_status(xm, ym, 2);
 	int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 	for(int n = 0; n < 4; n++)
@@ -62,17 +51,21 @@ int pathfinding_cycle(void)
 		int xn = xm + dirs[n][0];
 		int yn = ym + dirs[n][1];
 
-		if(xn > get_width() - 1)
+		if(xn > get_width() - 1) {
 			continue;
-		if(xn < 0)
+		}
+		if(xn < 0) {
 			continue;
-		if(yn > get_height() - 1);
+		}
+		if(yn > get_height() - 1) {
 			continue;
-		if(yn < 0)
+		}
+		if(yn < 0) {
 			continue;
+		}
 
 
-		//g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
+		g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
 
 		if(get_box(xn, yn) == 4)
 		{
@@ -80,7 +73,7 @@ int pathfinding_cycle(void)
 			//REACHED FINISH; BACKTRACE
 			while(1 == 1)
 			{
-				int min = 100;
+				int min = 1000;
 				int mxm, mym;
 				for(int m = 0; m < 4; m++)
 				{
@@ -109,7 +102,7 @@ int pathfinding_cycle(void)
 				yn = mym;
 				set_status(xn, yn, 5);
 			}
-		} else if(get_box(xn, yn) == 1) {
+		} else if(get_box(xn, yn) == 1 || get_box(xn, yn) == 3) {
 			if(get_status(xn, yn) == 0)
 			{
 				//ADD TO OPEN LIST AND COMPUTE SCORE
