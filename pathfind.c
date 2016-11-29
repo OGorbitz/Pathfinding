@@ -62,6 +62,16 @@ int pathfinding_cycle(void)
 		int xn = xm + dirs[n][0];
 		int yn = ym + dirs[n][1];
 
+		if(xn > get_width() - 1)
+			continue;
+		if(xn < 0)
+			continue;
+		if(yn > get_height() - 1);
+			continue;
+		if(yn < 0)
+			continue;
+
+
 		//g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
 
 		if(get_box(xn, yn) == 4)
