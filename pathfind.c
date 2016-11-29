@@ -33,7 +33,7 @@ int pathfinding_cycle(void)
 		{
 			if (get_status(i, j) == 1)
 			{
-				g_print("Open box %d,%d new best\n", i, j);
+				//g_print("Open box %d,%d new best\n", i, j);
 				int d = get_totaldist(i, j);
 				if (d < min)
 				{
@@ -43,7 +43,7 @@ int pathfinding_cycle(void)
 			}
 		}
 	}
-	g_print("Checking %d,%d\n", xm, ym);
+	//g_print("Checking %d,%d\n", xm, ym);
 	set_status(xm, ym, 2);
 	int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 	for(int n = 0; n < 4; n++)
@@ -65,7 +65,7 @@ int pathfinding_cycle(void)
 		}
 
 
-		g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
+		//g_print("x:%d y:%d t:%d\n", xn, yn, get_box(xn, yn));
 
 		if(get_box(xn, yn) == 4)
 		{

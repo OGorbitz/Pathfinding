@@ -10,7 +10,7 @@
 #include "maze.h"
 
 long aps = 1, cps = 1;
-gboolean pathfinding = FALSE;
+gboolean pathfinding = FALSE, pathfind_immediate = FALSE;
 GtkWidget *start_button, *stop_button, *reset_button, *b_genmaze;
 GtkWidget *displayarea;
 pthread_t loopthread, genthread;

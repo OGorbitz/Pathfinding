@@ -70,6 +70,14 @@ static void generate_maze(GtkWidget *widget, gpointer data)
 	}
 }
 
+static void solve_immediately_toggle(GtkWidget *widget, gpointer data)
+{
+	if (pathfind_immediate == TRUE)
+		pathfind_immediate = FALSE;
+	if (pathfind_immediate == FALSE)
+		pathfind_immediate = TRUE;
+}
+
 static void activate (GtkApplication* app, gpointer user_data)
 {
 	GtkWidget *window;
@@ -78,6 +86,7 @@ static void activate (GtkApplication* app, gpointer user_data)
 	GtkWidget *grid;
 	GtkWidget *frame_pf, *frame_mg;
 	GtkWidget *bb_pf, *bb_mg;
+	GtkWidget *b_solvimme;
 	GtkWidget *scale_speed, *m_scale_speed;
 	GtkWidget *label_speed, *m_label_speed;
 
@@ -138,6 +147,10 @@ static void activate (GtkApplication* app, gpointer user_data)
 	b_genmaze = gtk_button_new_with_label("Generate Maze");
 	g_signal_connect(b_genmaze, "clicked", G_CALLBACK(generate_maze), NULL);
 	gtk_container_add(GTK_CONTAINER(bb_mg), b_genmaze);
+
+	b_solvimme = gtk_check_button_new_with_label("Solve Immediately");
+	g_signal_connect(b_solvimme, "toggled", G_CALLBACK(solve_immediately_toggle), NULL);
+	gtk_container_add(GTK_CONTAINER(bb_mg), b_solvimme);
 
 	m_scale_speed = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 1, 100, 20);
 	g_signal_connect(G_OBJECT(m_scale_speed), "value_changed", G_CALLBACK(m_speed_changed), NULL);
@@ -286,7 +299,7 @@ void * pf_loop(void *param)
 		}
 		usleep(1000);
 		gtk_widget_queue_draw(displayarea);
-
+		g_print("Tick\n");
 		usleep(1000000 / aps);
 	}
 }
@@ -311,4 +324,8 @@ void * mg_loop(void *param)
 	}
 	gtk_widget_set_sensitive(b_genmaze, TRUE);
 	gtk_widget_set_sensitive(start_button, TRUE);
+	if(pathfind_immediate == TRUE)
+	{
+		start_pathfinding(start_button, NULL);
+	}
 }
