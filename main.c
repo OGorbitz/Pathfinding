@@ -299,7 +299,7 @@ void * pf_loop(void *param)
 		}
 		usleep(1000);
 		gtk_widget_queue_draw(displayarea);
-		g_print("Tick\n");
+		//g_print("Tick\n");
 		usleep(1000000 / aps);
 	}
 }
